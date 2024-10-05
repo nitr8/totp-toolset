@@ -190,7 +190,7 @@ $(document).ready(function() {
   
     $('#otp').html("&nbsp;" + otp + "&nbsp;");
     //Update previous and next OTPs
-    var otptable = '<table  class="table table-striped table-sm  table-bordered" style="width:100%">';
+    var otptable = '<table class="table table-striped table-sm table-bordered" style="width:100%;font-size:small">';
     otptable = otptable + '<tr><td><b>Skew</b></td><td><b>OTP</b></td></tr>';
     var i = 0;
     for (i = -$('#skew').val() * 30; i <= $('#skew').val() * 30; i += 30) {

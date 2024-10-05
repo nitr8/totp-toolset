@@ -1,0 +1,134 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/result-light.css">
+    <script type="text/javascript" src="js/jquery.slim.min.js"   ></script>
+    <script type="text/javascript" src="js/sha.min.js"   ></script>
+    <script type="text/javascript" src="js/qrcode.min.js"   ></script>
+    <link rel="shortcut icon" href="img/favico.png">
+    <title>TOTP toolset</title>
+  </head>
+  <body>
+    <div class="container">
+      <form name=frmConvert>
+        <div class="container">
+
+          <div class="row">
+            <div class="col-md-6">
+              <h1 class="display-3">TOTP toolset<sup>SHA-256</sup></h1>
+            </div> 	
+            <div class="col-md-6">
+              <span style="float:right">
+                <a href="index.html" class="btn btn-info" role="button">SHA-1</a>
+              </span>
+            </div>
+            <div class="col-md-12">
+              emulate a hardware token (with SHA256 seeds) and as to perform OTP verification and drift detection.
+            </div>
+          </div>
+          <hr/>
+          <div style="font-size:small">
+            <h4>Features</h4>
+            <ul>
+              <li>emulates tokens with SHA-256 seeds (i.e. C203)</li>
+              <li>converts hex seed to base32 format</li>
+              <li>generates QR image based on hex or base32 seed key values</li>
+              <li>generates random seed values (i.e. for Token2 programmable tokens)</li>
+              <li>can verify the time drift with customizable skew value</li>
+              <li>creates CSV</li>
+            </ul>
+          </div>
+          <hr/>
+          <div class="row">
+            <div class="col-md-8">
+              <h4>Seed (sha256) <sup>in base32</sup></h4>
+              <center> 
+                <div  class="alert alert-info">
+                  <div class="input">
+                    <input style="font-size:small" type="text" size="60" name="secret" id="secret"  value="3377FRG7XZKXQLENNW7AZNT5QOCQE5ND6UNRQIV3QXHFXEUKPU3Q" onchange="updateOtp();   return false; " onKeyup="updateOtp();   return false; " onClick="updateOtp();   return false;  " /> 
+                  </br>
+                    <button class="btn btn-primary btn-sm" onclick="$('#secret').val(randombase32()); updateOtp(); return false;">&#8633; random</button>
+                    <button class="btn btn-primary btn-sm" onclick=" inputHex(); updateOtp();   return false;">&#8655; enter HEX</button>
+                  </div>
+                </div>
+              </center>
+              <h4>QR code</h4>
+              <p>
+                <div >
+                  <center>
+                    <div class="input"><div id="QR"></div></div>
+                  </center>
+                </div>
+              </p>
+            </div> 	
+            <div class="col-md-4">
+              <h4>OTP <sup>verification & drift detection</sup></h4>
+              <div class="alert alert-success" style="min-width:250px">
+                <span style="float:right; font-size:large"><kbd> &#128338; <span style="min-width:5em" id='updatingIn'>--</span></kbd></span>
+                <center><h1><span style="border-style: solid; border-width: 0px; ">&nbsp;&nbsp;&nbsp; <span class="label label-primary" id='otp' ></span></span></h1></center>
+              </div>
+              <span style="float:right; width:5em">
+                <i>skew &#177;</i>
+                <input size=2 type=number id=skew class="form-control" min="0" onchange="updateOtp(); return false;" onKeyup="updateOtp(); return false;" onClick="updateOtp(); return false;" value=4 />
+              </span>
+						<div class="label label-primary" id='otp2'></div>
+            </div>
+          </div> 
+	        <hr>
+		      <div class="row">
+            <div class="col-md-8" >
+              <h4>Seed data</h4>
+              <table class="table table-striped table-sm table-bordered" style="font-size:small">
+                <tr>
+                  <td>Epoch<br/>&#247;30</td>
+                  <td> <span class="label label-default" id='epoch'></span></td>
+                </tr>
+                <tr>
+                  <td>HMAC<br/>secret, time</td>
+                  <td> <span class="label label-default" id='hmac'></span></td>
+                </tr>
+                <tr>
+                  <td>Seed<br/>HEX</td>
+                  <td><span class="label label-default" id="secretHex"></span> </td>
+                </tr>
+                <tr>
+                  <td>Length</td>
+                  <td><span id='secretHexLength'></span></td>
+                </tr>
+              </table>
+            </div>
+            <div class="col-md-4">
+              <div style="font-size:small">
+                <h4>Token data  </h4>
+                <div class="form-group">
+                  <label for="serial">Serial number <sup>digits only</sup></label>
+                  <input type="number" class="form-control" id="serial" name=serial placeholder="token's serial number" value="2300000000000">
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Token model <sup>separate brand and model with a comma</sup></label>
+                  <input type="text" class="form-control" id=name name=name value="Token2,miniOTP-1">
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Username <sup>as UPN </sup></label>
+                  <input type="text" class="form-control" id=upn name=upn value="user@lab.org.in">
+                </div>
+              </div>
+            </div>
+		
+       </div>
+      </div>
+
+	  	<div class="container">
+        <h3>CSV generation</h3>
+        <textarea id=AzureCSV name=AzureCSV style="width:100%;font-size:small" rows=15 cols=20>upn,serial number,secret key,timeinterval,manufacturer,model</textarea>		
+        <span style="float:right">
+          <button class="btn btn-primary btn-sm" onclick="addCSV(); return false;">append</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="download()">save</button>
+        </span>
+        <br>
+      </div>
+	  </form>
+
+    <script type="text/javascript" src="js/index-opt.js"></script>
+		</html>
